@@ -64,6 +64,7 @@ namespace XPerfect {
             if (meter.straightMeter is not null && defStraight is not null) {
                 meter.straightMeter.sprite = defStraight;
                 meter.straightMeter.overrideSprite = null;
+                meter.straightMeter.SetAllDirty();
             }
 
             Sprite defCurved = originalCurvedSprite;
@@ -75,6 +76,7 @@ namespace XPerfect {
             if (meter.curvedMeter is not null && defCurved is not null) {
                 meter.curvedMeter.sprite = defCurved;
                 meter.curvedMeter.overrideSprite = null;
+                meter.curvedMeter.SetAllDirty();
             }
         }
 
@@ -165,7 +167,7 @@ namespace XPerfect {
 
         public static void PatchRDConstants() {
             try {
-                if (!Main.Enabled) {
+                if (!Main.Enabled || !Main.Settings.CustomErrorMeter) {
                     RestoreRDConstants();
                     return;
                 }
@@ -217,7 +219,7 @@ namespace XPerfect {
 
             CaptureOriginalSprites(meter);
 
-            if (!Main.Enabled) {
+            if (!Main.Enabled || !Main.Settings.CustomErrorMeter) {
                 RestoreOriginalSprites(meter);
                 return;
             }
@@ -237,8 +239,6 @@ namespace XPerfect {
                 meter.curvedMeter.overrideSprite = curved;
                 meter.curvedMeter.SetAllDirty();
             }
-
-            ModLogger.Log($"[MeterVisualPatch] Applied visual state: straight={straight?.name}, curved={curved?.name}");
         }
 
         private static Sprite GetStraightSprite() {
@@ -259,6 +259,7 @@ namespace XPerfect {
         internal static void SelfCheck() {
             System.Diagnostics.Debug.Assert(LoadSprite(null) is null);
             System.Diagnostics.Debug.Assert(!IsXPerfectSprite(null));
+            System.Diagnostics.Debug.Assert(Main.Settings.CustomErrorMeter);
         }
     }
 }

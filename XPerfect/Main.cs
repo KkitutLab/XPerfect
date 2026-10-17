@@ -156,6 +156,17 @@ namespace XPerfect {
         public static void DrawGUI() {
             Settings.XPerfectOnly = GUILayout.Toggle(Settings.XPerfectOnly, "XPerfect Only");
             Settings.MergePerfects = GUILayout.Toggle(Settings.MergePerfects, "Merge Perfects");
+            bool prevMeter = Settings.CustomErrorMeter;
+            Settings.CustomErrorMeter = GUILayout.Toggle(Settings.CustomErrorMeter, "Custom Error Meter");
+            if (Settings.CustomErrorMeter != prevMeter) {
+                if (Settings.CustomErrorMeter) {
+                    MeterVisualPatch.PatchRDConstants();
+                    MeterVisualPatch.RefreshAllMeters();
+                } else {
+                    MeterVisualPatch.RestoreRDConstants();
+                    MeterVisualPatch.RefreshAllMeters();
+                }
+            }
             bool prevShow = Settings.ShowCounter;
             Settings.ShowCounter = GUILayout.Toggle(Settings.ShowCounter, "Show Counter");
             if (Settings.ShowCounter != prevShow)
@@ -236,6 +247,7 @@ namespace XPerfect {
     public class XPerfectSettings {
         public bool XPerfectOnly = false;
         public bool MergePerfects = true;
+        public bool CustomErrorMeter = true;
         public bool ShowCounter = false;
         public int CounterFontSize = 40;
         public int CounterSpacing = 20;
