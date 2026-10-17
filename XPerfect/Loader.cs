@@ -1,7 +1,7 @@
 #if ML
 using MelonLoader;
 
-[assembly: MelonInfo(typeof(XPerfect.Loader), "XPerfect", "3.0.0", "8100print & Kkitut")]
+[assembly: MelonInfo(typeof(XPerfect.Loader), "XPerfect", "3.1.0", "8100print & Kkitut")]
 [assembly: MelonGame("7th Beat Games", "A Dance of Fire and Ice")]
 
 namespace XPerfect {

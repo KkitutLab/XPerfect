@@ -2,7 +2,7 @@
   "Id": "XPerfect",
   "DisplayName": "XPerfect",
   "Author": "8100print, Kkitut",
-  "Version": "3.0.0",
+  "Version": "3.1.0",
   "AssemblyName": "XPerfect.dll",
   "EntryMethod": "XPerfect.Main.Load"
 }

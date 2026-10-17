@@ -54,7 +54,7 @@ namespace XPerfect {
                 ModMenu.ModMenuApi.Register(new ModMenu.ModEntry {
                     Id = "XPerfect",
                     DisplayName = "XPerfect",
-                    Version = "3.0.0",
+                    Version = "3.1.0",
                     Author = "8100print & Kkitut",
                     Enabled = Enabled,
                     OnToggle = (val) => OnToggle(val),
