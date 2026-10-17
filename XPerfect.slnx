@@ -1,0 +1,14 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug_ML" />
+    <BuildType Name="Release_ML" />
+    <BuildType Name="Debug_UMM" />
+    <BuildType Name="Release_UMM" />
+  </Configurations>
+  <Project Path="XPerfect/XPerfect.csproj">
+    <BuildType Solution="Debug_ML|*" Project="Debug_ML" />
+    <BuildType Solution="Release_ML|*" Project="Release_ML" />
+    <BuildType Solution="Debug_UMM|*" Project="Debug_UMM" />
+    <BuildType Solution="Release_UMM|*" Project="Release_UMM" />
+  </Project>
+</Solution>

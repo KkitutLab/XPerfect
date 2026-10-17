@@ -1,0 +1,12 @@
+<Project>
+    <PropertyGroup>
+        <GamePath Condition="'$(GamePath)' == '' and Exists('/home/kkitut/.local/share/Steam/steamapps/common/A Dance of Fire and Ice')">/home/kkitut/.local/share/Steam/steamapps/common/A Dance of Fire and Ice</GamePath>
+        <GamePath Condition="'$(GamePath)' == '' and Exists('D:\steam\steamapps\common\A Dance of Fire and Ice')">D:\steam\steamapps\common\A Dance of Fire and Ice</GamePath>
+        <GamePath Condition="'$(GamePath)' == ''">/home/kkitut/.local/share/Steam/steamapps/common/A Dance of Fire and Ice</GamePath>
+        <GameData Condition="'$(GameData)' == ''">ADanceOfFireAndIce_Data</GameData>
+        <UMMPath Condition="'$(UMMPath)' == '' and Exists('/home/kkitut/Downloads/UMMBridge/__gamename___Data/Managed/UnityModManager')">/home/kkitut/Downloads/UMMBridge/__gamename___Data/Managed/UnityModManager</UMMPath>
+        <UMMPath Condition="'$(UMMPath)' == '' and Exists('$(GamePath)/$(GameData)/Managed/UnityModManager')">$(GamePath)/$(GameData)/Managed/UnityModManager</UMMPath>
+        <UMMPath Condition="'$(UMMPath)' == ''">/home/kkitut/Downloads/UMMBridge/__gamename___Data/Managed/UnityModManager</UMMPath>
+        <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3277</MSBuildWarningsAsMessages>
+    </PropertyGroup>
+</Project>
