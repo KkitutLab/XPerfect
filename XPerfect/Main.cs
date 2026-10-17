@@ -2,6 +2,7 @@ using HarmonyLib;
 using System;
 using System.Collections;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEngine;
 
 #if UMM
@@ -73,16 +74,20 @@ namespace XPerfect {
 
         public static bool Initialize() {
             try {
+                if (Enabled) return true;
+
+                XPerfectAssets.InitGameDir();
+
+                // Asynchronous background preloading
+                _ = Task.Run(() => {
+                    XPerfectAssets.StartPreloadingRawAssets();
+                });
+
                 _harmony = new("com.xperfect.mod");
-                if (!SafePatchManager.ApplyAll(_harmony)) {
-                    Dispose();
-                    return false;
-                }
+                SafePatchManager.PatchTask = Task.Run(() => SafePatchManager.ApplyAll(_harmony));
 
                 Enabled = true;
                 AccuracyState.Reset();
-                MeterVisualPatch.SelfCheck();
-                DetailedResultsPatch.SelfCheck();
 
                 if (_runnerGo is null) {
                     _runnerGo = new("XPerfect_Runner");
@@ -102,6 +107,13 @@ namespace XPerfect {
 
         private static IEnumerator InitialCreate(CounterRunner runner) {
             yield return null;
+            if (SafePatchManager.PatchTask is not null && !SafePatchManager.PatchTask.IsCompleted) {
+                while (!SafePatchManager.PatchTask.IsCompleted)
+                    yield return null;
+            }
+            MeterVisualPatch.SelfCheck();
+            DetailedResultsPatch.SelfCheck();
+
             CounterDisplay.Create();
             yield return null;
             CounterDisplay.ApplyFont();
@@ -139,6 +151,10 @@ namespace XPerfect {
                 if (_runnerGo is not null) {
                     UnityEngine.Object.Destroy(_runnerGo);
                     _runnerGo = null;
+                }
+
+                if (SafePatchManager.PatchTask is not null && !SafePatchManager.PatchTask.IsCompleted) {
+                    try { SafePatchManager.PatchTask.Wait(500); } catch { }
                 }
 
                 if (_harmony is not null) {
@@ -280,19 +296,33 @@ namespace XPerfect {
             return userDataPath;
         }
 
+        private static int _saveDirtyVersion;
+
         public void Save() {
             try {
                 string file = GetSettingsPath(forSaving: true);
-                string dir = Path.GetDirectoryName(file);
-                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) {
-                    Directory.CreateDirectory(dir);
-                }
                 string json = Newtonsoft.Json.JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented);
-                File.WriteAllText(file, json);
+                int currentVersion = System.Threading.Interlocked.Increment(ref _saveDirtyVersion);
+
+                _ = Task.Run(() => {
+                    try {
+                        string dir = Path.GetDirectoryName(file);
+                        if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) {
+                            Directory.CreateDirectory(dir);
+                        }
+                        if (System.Threading.Volatile.Read(ref _saveDirtyVersion) == currentVersion) {
+                            File.WriteAllText(file, json);
+                        }
+                    } catch (Exception ex) {
+                        ModLogger.Error($"Failed to save settings async: {ex.Message}");
+                    }
+                });
             } catch (Exception ex) {
-                ModLogger.Error($"Failed to save settings: {ex.Message}");
+                ModLogger.Error($"Failed to prepare save settings: {ex.Message}");
             }
         }
+
+        public static Task<XPerfectSettings> LoadAsync() => Task.Run(Load);
 
         public static XPerfectSettings Load() {
             try {

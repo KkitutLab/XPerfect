@@ -98,13 +98,23 @@
             <AssetFiles Include="$(MSBuildProjectDirectory)/Assets/**/*.*" />
         </ItemGroup>
 
-        <MakeDir Directories="$(GamePath)/Mods" Condition="'$(TargetPath)' != ''" />
-        <Copy Condition="'$(TargetPath)' != ''" SourceFiles="$(TargetPath)" DestinationFolder="$(GamePath)/Mods" SkipUnchangedFiles="true" />
+        <MakeDir Directories="$(GamePath)/Mods" Condition="'$(TargetPath)' != '' and $(Configuration.Contains('ML'))" />
+        <Copy Condition="'$(TargetPath)' != '' and $(Configuration.Contains('ML'))" SourceFiles="$(TargetPath)" DestinationFolder="$(GamePath)/Mods" SkipUnchangedFiles="true" />
+
+        <MakeDir Directories="$(GamePath)/Mods/XPerfect" Condition="'$(TargetPath)' != '' and $(Configuration.Contains('UMM'))" />
+        <Copy Condition="'$(TargetPath)' != '' and $(Configuration.Contains('UMM'))" SourceFiles="$(TargetPath)" DestinationFolder="$(GamePath)/Mods/XPerfect" SkipUnchangedFiles="true" />
+        <Copy Condition="$(Configuration.Contains('UMM')) and Exists('$(MSBuildProjectDirectory)/Assets/Info.json')" SourceFiles="$(MSBuildProjectDirectory)/Assets/Info.json" DestinationFolder="$(GamePath)/Mods/XPerfect" SkipUnchangedFiles="true" />
+
         <MakeDir Directories="$(GamePath)/UserData/XPerfect" />
         <Copy SourceFiles="@(AssetFiles)" DestinationFolder="$(GamePath)/UserData/XPerfect" SkipUnchangedFiles="true" />
 
-        <MakeDir Directories="$(BuildOutputDir)/Mods" Condition="'$(TargetPath)' != ''" />
-        <Copy Condition="'$(TargetPath)' != ''" SourceFiles="$(TargetPath)" DestinationFolder="$(BuildOutputDir)/Mods" SkipUnchangedFiles="true" />
+        <MakeDir Directories="$(BuildOutputDir)/Mods" Condition="'$(TargetPath)' != '' and $(Configuration.Contains('ML'))" />
+        <Copy Condition="'$(TargetPath)' != '' and $(Configuration.Contains('ML'))" SourceFiles="$(TargetPath)" DestinationFolder="$(BuildOutputDir)/Mods" SkipUnchangedFiles="true" />
+
+        <MakeDir Directories="$(BuildOutputDir)/Mods/XPerfect" Condition="'$(TargetPath)' != '' and $(Configuration.Contains('UMM'))" />
+        <Copy Condition="'$(TargetPath)' != '' and $(Configuration.Contains('UMM'))" SourceFiles="$(TargetPath)" DestinationFolder="$(BuildOutputDir)/Mods/XPerfect" SkipUnchangedFiles="true" />
+        <Copy Condition="$(Configuration.Contains('UMM')) and Exists('$(MSBuildProjectDirectory)/Assets/Info.json')" SourceFiles="$(MSBuildProjectDirectory)/Assets/Info.json" DestinationFolder="$(BuildOutputDir)/Mods/XPerfect" SkipUnchangedFiles="true" />
+
         <MakeDir Directories="$(BuildOutputDir)/UserData/XPerfect" />
         <Copy SourceFiles="@(AssetFiles)" DestinationFolder="$(BuildOutputDir)/UserData/XPerfect" SkipUnchangedFiles="true" />
     </Target>

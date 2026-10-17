@@ -89,38 +89,51 @@ namespace XPerfect {
                     curvedNoOutlineSprite = null;
                 }
 
+                var raw = XPerfectAssets.RawAssetsTask?.IsCompleted == true
+                    ? XPerfectAssets.RawAssetsTask.Result
+                    : null;
+
                 if (straightSprite is null) {
                     string straightPath = XPerfectAssets.GetAssetPath("XStraightMeter.png");
-                    straightSprite = LoadSprite(straightPath);
+                    straightSprite = LoadSprite(straightPath, raw?.StraightMeterBytes);
                 }
 
                 if (straightNoOutlineSprite is null) {
                     string straightNoOutlinePath = XPerfectAssets.GetAssetPath("XStraightMeterNoOutline.png");
-                    straightNoOutlineSprite = LoadSprite(straightNoOutlinePath);
+                    straightNoOutlineSprite = LoadSprite(straightNoOutlinePath, raw?.StraightMeterNoOutlineBytes);
                 }
 
                 if (curvedSprite is null) {
                     string curvedPath = XPerfectAssets.GetAssetPath("XCurvedMeter.png");
-                    curvedSprite = LoadSprite(curvedPath);
+                    curvedSprite = LoadSprite(curvedPath, raw?.CurvedMeterBytes);
                 }
 
                 if (curvedNoOutlineSprite is null) {
                     string curvedNoOutlinePath = XPerfectAssets.GetAssetPath("XCurvedMeterNoOutline.png");
-                    curvedNoOutlineSprite = LoadSprite(curvedNoOutlinePath);
+                    curvedNoOutlineSprite = LoadSprite(curvedNoOutlinePath, raw?.CurvedMeterNoOutlineBytes);
                 }
             } catch (Exception ex) {
                 ModLogger.Error($"[MeterVisualPatch/EnsureSpritesLoaded] {ex}");
             }
         }
 
-        private static Sprite LoadSprite(string filePath) {
-            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath)) {
-                ModLogger.Error($"[MeterVisualPatch/LoadSprite] File not found: {filePath}");
-                return null;
+        private static Sprite LoadSprite(string filePath, byte[] preloadedBytes = null) {
+            byte[] bytes = preloadedBytes;
+            if (bytes is null || bytes.Length == 0) {
+                if (string.IsNullOrEmpty(filePath)) return null;
+                if (!File.Exists(filePath)) {
+                    ModLogger.Error($"[MeterVisualPatch/LoadSprite] File not found: {filePath}");
+                    return null;
+                }
+                try {
+                    bytes = File.ReadAllBytes(filePath);
+                } catch (Exception ex) {
+                    ModLogger.Error($"[MeterVisualPatch/LoadSprite] ReadAllBytes failed on {filePath}: {ex}");
+                    return null;
+                }
             }
 
             try {
-                byte[] bytes = File.ReadAllBytes(filePath);
                 Texture2D texture = new(2, 2, TextureFormat.ARGB32, false);
                 if (!ImageConversion.LoadImage(texture, bytes)) {
                     ModLogger.Error($"[MeterVisualPatch/LoadSprite] LoadImage failed: {filePath}");
@@ -136,8 +149,8 @@ namespace XPerfect {
 
                 // ADOFAI native meter sprites use 1.0 pixelsPerUnit (ppu)
                 var spr = Sprite.Create(texture, rect, pivot, 1.0f);
-                spr.name = Path.GetFileNameWithoutExtension(filePath);
-                ModLogger.Log($"[MeterVisualPatch/LoadSprite] Loaded {spr.name} from {filePath}");
+                spr.name = Path.GetFileNameWithoutExtension(filePath ?? "XMeter");
+                ModLogger.Log($"[MeterVisualPatch/LoadSprite] Loaded {spr.name}");
                 return spr;
             } catch (Exception ex) {
                 ModLogger.Error($"[MeterVisualPatch/LoadSprite] Exception on {filePath}: {ex}");

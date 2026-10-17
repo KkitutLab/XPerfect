@@ -175,7 +175,9 @@ namespace XPerfect {
         }
 
         private static TMP_FontAsset LoadFont() {
-            string path = XPerfectAssets.GetAssetPath("Maplestory OTF Bold.otf");
+            string path = XPerfectAssets.RawAssetsTask?.IsCompleted == true && !string.IsNullOrEmpty(XPerfectAssets.RawAssetsTask.Result.FontPath)
+                ? XPerfectAssets.RawAssetsTask.Result.FontPath
+                : XPerfectAssets.GetAssetPath("Maplestory OTF Bold.otf");
 
             try {
                 if (string.IsNullOrEmpty(path) || !File.Exists(path)) {
