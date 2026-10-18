@@ -48,20 +48,31 @@ namespace XPerfect {
                 ModPath = Path.Combine("UserData", "XPerfect");
                 Settings = XPerfectSettings.Load();
 
-                if (!Initialize()) {
+                bool shouldEnable = true;
+                try {
+                    shouldEnable = ModMenu.ModMenuApi.IsModEnabled("XPerfect");
+                } catch {
+                    shouldEnable = true;
+                }
+
+                if (shouldEnable && !Initialize()) {
                     return false;
                 }
 
-                ModMenu.ModMenuApi.Register(new ModMenu.ModEntry {
-                    Id = "XPerfect",
-                    DisplayName = "XPerfect",
-                    Version = "3.2.0",
-                    Author = "8100print & Kkitut",
-                    Enabled = Enabled,
-                    OnToggle = (val) => OnToggle(val),
-                    OnGUI = () => DrawGUI(),
-                    OnSaveGUI = () => Settings.Save()
-                });
+                try {
+                    ModMenu.ModMenuApi.Register(new ModMenu.ModEntry {
+                        Id = "XPerfect",
+                        DisplayName = "XPerfect",
+                        Version = "3.2.0",
+                        Author = "8100print & Kkitut",
+                        Enabled = shouldEnable,
+                        OnToggle = (val) => OnToggle(val),
+                        OnGUI = () => DrawGUI(),
+                        OnSaveGUI = () => Settings.Save()
+                    });
+                } catch (Exception ex) {
+                    ModLogger.Warn($"ModMenu registration skipped: {ex.Message}");
+                }
 
                 return true;
             } catch (Exception ex) {
@@ -122,6 +133,9 @@ namespace XPerfect {
         }
 
         public static bool OnToggle(bool value) {
+            if (value && _harmony is null) {
+                if (!Initialize()) return false;
+            }
             Enabled = value;
             CompetitiveModePrefs.runtimeDisabled = !value;
             AccuracyState.Reset();
